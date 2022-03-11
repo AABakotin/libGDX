@@ -1,41 +1,36 @@
 package app.game;
 
 import app.game.helpers.ObjectPool;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class AsteroidController extends ObjectPool<Asteroid> {
-
-
-    private final int ASTEROID_COUNT = 5;
-    private Texture textureAsteroid;
-
-    private Asteroid[] asteroids;
+    private GameController gc;
 
     @Override
     protected Asteroid newObject() {
-        return new Asteroid();
+        return new Asteroid(gc);
     }
 
-    public AsteroidController() {
-        this.textureAsteroid = new Texture("asteroid.png");
-        this.asteroids = new Asteroid[ASTEROID_COUNT];
-        for (int i = 0; i < asteroids.length; i++) {
-            asteroids[i] = new Asteroid();
-        }
+    public AsteroidController(GameController gc) {
+        this.gc = gc;
     }
 
     public void render(SpriteBatch batch) {
-        for (int i = 0; i < asteroids.length; i++) {
-            batch.draw(textureAsteroid, asteroids[i].getPosition().x - 128, asteroids[i].getPosition().y - 128, 128, 128,
-                    256, 256, asteroids[i].getScale(), asteroids[i].getScale(),
-                    0, 0, 0, 256, 256, false, false);
+        for (int i = 0; i < activeList.size(); i++) {
+            Asteroid a = activeList.get(i);
+            a.render(batch);
         }
     }
 
+    public void setup(float x, float y, float vx, float vy, float scale){
+        getActiveElement().activate(x, y, vx, vy, scale);
+    }
+
     public void update(float dt) {
-        for (int i = 0; i < asteroids.length; i++) {
-            asteroids[i].update(dt);
+        for (int i = 0; i < activeList.size(); i++) {
+            activeList.get(i).update(dt);
         }
+        checkPool();
     }
 }
+
