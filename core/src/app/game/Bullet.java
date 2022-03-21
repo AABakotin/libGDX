@@ -19,6 +19,10 @@ public class Bullet implements Poolable {
         return position;
     }
 
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
     public Bullet() {
         this.position = new Vector2();
         this.velocity = new Vector2();

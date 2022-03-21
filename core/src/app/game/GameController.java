@@ -1,17 +1,24 @@
 package app.game;
 
-public class GameController {
-    private Background background;
-    private BulletController bulletController;
-    private AsteroidController asteroidController;
-    private Hero hero;
+import app.screen.ScreenManager;
+import com.badlogic.gdx.math.MathUtils;
 
-    public BulletController getBulletController() {
-        return bulletController;
-    }
+public class GameController {
+
+    private final Background background;
+    private final BulletController bulletController;
+    private final AsteroidController asteroidController;
+    private final Hero hero;
+
+
+
 
     public AsteroidController getAsteroidController() {
         return asteroidController;
+    }
+
+    public BulletController getBulletController() {
+        return bulletController;
     }
 
     public Background getBackground() {
@@ -25,9 +32,15 @@ public class GameController {
     public GameController() {
         this.background = new Background(this);
         this.bulletController = new BulletController();
-        this.asteroidController = new AsteroidController();
+        this.asteroidController = new AsteroidController(this);
         this.hero = new Hero(this);
 
+
+        for (int i = 0; i < 3; i++) {
+            asteroidController.setup(MathUtils.random(0, ScreenManager.SCREEN_WIDTH),
+                    MathUtils.random(0, ScreenManager.SCREEN_HEIGHT),
+                    MathUtils.random(-150, 150), MathUtils.random(-150, 150), 1.0f);
+        }
     }
 
     public void update(float dt) {
@@ -40,9 +53,30 @@ public class GameController {
 
 
     public void checkCollisions() {
-        //Пока не получилось реализовать исчезновение астероида при попадании пули или при приближении героя.
+        //столкновение астероидов и героя
+        for (int i = 0; i < asteroidController.getActiveList().size(); i++) {
+            Asteroid a = asteroidController.getActiveList().get(i);
+            if (hero.getHitArea().overlaps(a.getHitArea())) {
+                if (a.takeDamage(2)) {
+                    hero.addScore(a.getHpMax() * 50);
+                }
+                hero.takeDamage(2);
+            }
+        }
 
+        //столкновение пуль и астероидов
+        for (int i = 0; i < bulletController.getActiveList().size(); i++) {
+            Bullet b = bulletController.getActiveList().get(i);
+            for (int j = 0; j < asteroidController.getActiveList().size(); j++) {
+                Asteroid a = asteroidController.getActiveList().get(j);
+                if (a.getHitArea().contains(b.getPosition())) {
+                    b.deactivate();
+                    if (a.takeDamage(1)) {
+                        hero.addScore(a.getHpMax() * 100);
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
-
-
