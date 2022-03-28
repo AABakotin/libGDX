@@ -33,4 +33,3 @@ public class AsteroidController extends ObjectPool<Asteroid> {
         checkPool();
     }
 }
-
