@@ -56,8 +56,7 @@ public class Background {
     public void render(SpriteBatch batch) {
         batch.draw(textureCosmos, 0, 0);
         for (int i = 0; i < stars.length; i++) {
-            batch.draw(textureStar, stars[i].position.x - 8,
-                    stars[i].position.y - 8, 8, 8,
+            batch.draw(textureStar, stars[i].position.x - 8, stars[i].position.y - 8, 8, 8,
                     16, 16, stars[i].scale, stars[i].scale, 0);
             if (MathUtils.random(300) < 1) {
                 batch.draw(textureStar, stars[i].position.x - 8, stars[i].position.y - 8, 8, 8,
