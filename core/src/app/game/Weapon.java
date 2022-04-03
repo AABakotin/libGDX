@@ -42,14 +42,6 @@ public class Weapon {
         this.slots = slots;
     }
 
-
-    public void addAmmo(int quantity) {
-        curBullets += quantity;
-        if (curBullets > maxBullets) {
-            curBullets = maxBullets;
-        }
-    }
-
     public void fire() {
         if (curBullets > 0) {
             curBullets--;
@@ -63,6 +55,13 @@ public class Weapon {
 
                 gc.getBulletController().setup(x, y, vx, vy);
             }
+        }
+    }
+
+    public void addAmmos(int amount) {
+        curBullets += amount;
+        if (curBullets > maxBullets) {
+            curBullets = maxBullets;
         }
     }
 }

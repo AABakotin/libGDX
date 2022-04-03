@@ -5,15 +5,17 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class GameController {
-
     private Background background;
     private BulletController bulletController;
     private AsteroidController asteroidController;
     private ParticleController particleController;
+    private PowerUpsController powerUpsController;
     private Hero hero;
     private Vector2 tempVec;
-    private PowerBoostController powerBoostController;
 
+    public PowerUpsController getPowerUpsController() {
+        return powerUpsController;
+    }
 
     public ParticleController getParticleController() {
         return particleController;
@@ -35,16 +37,12 @@ public class GameController {
         return hero;
     }
 
-    public PowerBoostController getPowerBoostController() {
-        return powerBoostController;
-    }
-
     public GameController() {
         this.background = new Background(this);
         this.bulletController = new BulletController(this);
         this.asteroidController = new AsteroidController(this);
         this.particleController = new ParticleController();
-        this.powerBoostController = new PowerBoostController(this);
+        this.powerUpsController = new PowerUpsController(this);
         this.hero = new Hero(this);
         this.tempVec = new Vector2();
 
@@ -52,6 +50,9 @@ public class GameController {
             asteroidController.setup(MathUtils.random(0, ScreenManager.SCREEN_WIDTH),
                     MathUtils.random(0, ScreenManager.SCREEN_HEIGHT),
                     MathUtils.random(-150, 150), MathUtils.random(-150, 150), 1.0f);
+
+
+
         }
     }
 
@@ -60,7 +61,7 @@ public class GameController {
         bulletController.update(dt);
         asteroidController.update(dt);
         particleController.update(dt);
-        powerBoostController.update(dt);
+        powerUpsController.update(dt);
         hero.update(dt);
         checkCollisions();
     }
@@ -84,9 +85,16 @@ public class GameController {
                 if (a.takeDamage(2)) {
                     hero.addScore(a.getHpMax() * 50);
                 }
+
+
                 hero.takeDamage(2);
+
+                    if (getHero().getHp() <= 0){
+                        ScreenManager.getInstance().changeScreen(ScreenManager.ScreenType.GAMEOVER);
+                }
             }
         }
+
         //столкновение пуль и астероидов
         for (int i = 0; i < bulletController.getActiveList().size(); i++) {
             Bullet b = bulletController.getActiveList().get(i);
@@ -101,24 +109,26 @@ public class GameController {
                             0.0f, 0.1f, 1.0f, 0.0f);
 
                     b.deactivate();
-                    if (a.takeDamage(1)) {
+                    if (a.takeDamage(hero.getCurrentWeapon().getDamage())) {
                         hero.addScore(a.getHpMax() * 100);
-                        powerBoostController.setup(a.getPosition().x, a.getPosition().y, 20);
+                        for (int k = 0; k < 3; k++) {
+                            powerUpsController.setup(a.getPosition().x, a.getPosition().y, a.getScale() * 0.25f );
+                        }
                     }
                     break;
                 }
             }
         }
-        // Столкновение бонусов и героя
-        for (int i = 0; i < powerBoostController.getActiveList().size(); i++) {
-            PowerBoost pb = powerBoostController.getActiveList().get(i);
-            if (hero.getHitArea().contains(pb.getHitArea())) {
-                hero.takePowerBoost(pb);
-                pb.deactivate();
+
+        // Столкновение боеприпасов и героя
+        for (int i = 0; i < powerUpsController.getActiveList().size(); i++) {
+            PowerUp pu = powerUpsController.getActiveList().get(i);
+            if (hero.getHitArea().contains(pu.getPosition())) {
+                hero.consume(pu);
+                particleController.getEffectBuilder().takePowerUpsEffect(pu);
+                pu.deactivate();
             }
         }
-
-
     }
-
 }
+
